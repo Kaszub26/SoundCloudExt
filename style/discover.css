@@ -1,0 +1,145 @@
+/**
+ * Author: petar
+ * Date: 1/21/13
+ */
+body {
+    width: 800px;
+    height: 500px;
+}
+footer {
+    /*position: absolute;*/
+    /*bottom: 0px;*/
+    /*height: 24px;*/
+    /*width: 100%;*/
+    /*background-color: #fff;*/
+}
+footer a:first-child {
+    position: fixed;
+    bottom: 0px;
+    left: 0px;
+    z-index: 5;
+    background-color: #fff;
+}
+footer a:last-child {
+    /*position: absolute;*/
+    /*bottom: 0px;*/
+    /*right: 0px;*/
+    /*z-index: 5;*/
+    /*background-color: #fff;*/
+}
+ul,
+#final li {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+ul li {
+    display: inline-block;
+    padding: 5px;
+    margin: 2px;
+    border: solid 1px #ccc;
+    font-family: Interstate, "Lucida Grande", Helvetica, Arial, sans-serif;
+    font-size: 10pt;
+
+    background-color: #fff;
+    color: #666;
+    transition: background-color 0.5s;
+    -moz-transition: background-color 0.5s; /* Firefox 4 */
+    -webkit-transition: background-color 0.5s; /* Safari and Chrome */
+    -o-transition: background-color 0.5s; /* Opera */
+    /*-webkit-border-radius: 2px;*/
+    /*-moz-border-radius: 2px;*/
+    /*border-radius: 2px;*/
+}
+ul li:hover,
+ul#categories li.selected {
+    background-color: rgba(255, 125, 0, 0.61);
+    color: #fff;
+    cursor: pointer;
+}
+
+.hide {
+    display: none;
+}
+#songsContainer {
+    display: none;
+}
+#final li  {
+    display: inline-block;
+    padding: 2px;
+    position: relative;
+    width: 130px;
+}
+
+#final li:hover {
+    cursor: pointer;
+}
+
+#final li .art {
+    width: 130px;
+}
+#final li .wave {
+    position: absolute;
+    z-index: 2;
+    width: 130px;
+    height: 21px;
+    bottom: 26px;
+    left: 2px;
+    background-color: #4A4A4A;
+    opacity: 0.9;
+}
+
+#final li .wave.minimize {
+}
+
+#final li .audioBtn {
+    position: absolute;
+    top: 47px;
+    left: 54px;
+    z-index: 2;
+    width: 30px;
+    height: 30px;
+    background: transparent url('../images/button-sprite-30.png') no-repeat;
+    background-position: 0 -60px;
+}
+
+#final li:hover .audioBtn {
+    background-position: 0 -90px;
+}
+
+#final li .artist {
+    color: #b3b3b3;
+    font-size: 10px;
+    width: 130px;
+    height: 11px;
+}
+#final li .title {
+    color: #666;
+    font-size: 11px;
+    width: 130px;
+    height: 13px;
+}
+#final li .title,
+#final li .artist {
+    font-family: Interstate, "Lucida Grande", Helvetica, Arial, sans-serif;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+#final li .hider {
+    position: absolute;
+    background: transparent url('../images/hider-fade.png') no-repeat;
+    width: 32px;
+    height: 23px;
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+}
+
+/*#final li.selected .audioBtn {*/
+    /*background-position: 0px 0px;*/
+/*}*/
+
+/*#final li.selected:hover .audioBtn {*/
+    /*background-position: 0px -30px;*/
+/*}*/
