@@ -3,8 +3,11 @@
  * Date: 1/21/13
  */
 body {
-    width: 800px;
-    height: 500px;
+/*    width: 800px;
+    height: 500px;*/
+    margin: 0px;
+    padding: 0px;
+    background: transparent url('../wireFrame.png') no-repeat;
 }
 footer {
     /*position: absolute;*/
@@ -27,13 +30,13 @@ footer a:last-child {
     /*z-index: 5;*/
     /*background-color: #fff;*/
 }
-ul,
+ul#categories,
 #final li {
     list-style-type: none;
     margin: 0;
     padding: 0;
 }
-ul li {
+ul#categories li {
     display: inline-block;
     padding: 5px;
     margin: 2px;
@@ -51,7 +54,7 @@ ul li {
     /*-moz-border-radius: 2px;*/
     /*border-radius: 2px;*/
 }
-ul li:hover,
+ul#categories li:hover,
 ul#categories li.selected {
     background-color: rgba(255, 125, 0, 0.61);
     color: #fff;
@@ -143,3 +146,29 @@ ul#categories li.selected {
 /*#final li.selected:hover .audioBtn {*/
     /*background-position: 0px -30px;*/
 /*}*/
+
+#wrapper {
+    width: 630px;
+    position: relative;
+}
+
+#lhs {
+    width: 200px;
+    height: 400px;
+    float: left;
+}
+
+#lhs #categorySelection_chzn {
+    position: absolute;
+    top: 185px;
+    left: 37px;
+}
+#lhs .chzn-container .chzn-results {
+    max-height: 124px;
+}
+
+#rhs {
+    width: 400px;
+    height: 400px;
+    float: left;
+}

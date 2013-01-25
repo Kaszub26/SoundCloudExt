@@ -80,6 +80,14 @@ var Discover = {
     showData: function(e) {
         var response = JSON.parse(e.target.responseText);
         console.log(response);
+
+        //Create chosen.jquery.min category list
+        var categoryElement = document.createElement('select');
+        $('#lhs').append(categoryElement);
+        categoryElement.setAttribute('id' , 'categorySelection');
+        var categorySelection = document.getElementById('categorySelection');
+
+        //Append extra crap to DOM
         var categoryUl = document.createElement('ul');
         var songsDiv = document.createElement('div');
         if (document.body != null) {
@@ -95,14 +103,29 @@ var Discover = {
             var name = response.collection[i].name.toLowerCase().replace(/ /g, '');     //Make items lower case and remove space TODO one regex
             var formatName = name.replace(/[&\+]/g, '');                                //Replace &, +, and other uncessary characters with ''
             Discover.tracks[formatName] = [];
+
+            //New selection of categories
+            var categoryOption = document.createElement('option');
+            categoryOption.innerHTML = name;
+            categoryOption.setAttribute('value', formatName);
+            categorySelection.appendChild(categoryOption);
+
+            //Make the first item selected by default
+            if (i === 0) {
+                categoryOption.setAttribute('selected' , 'selected');
+            }
+
+            //Old list of categories
             var item = document.createElement('li');
             item.innerHTML = name;
             item.setAttribute('data-category', formatName);
             list.appendChild(item);
+
             var songs = document.createElement('ul');
             songsContainer.appendChild(songs);
             songs.setAttribute('id', formatName);
             songs.setAttribute('class', 'hide');
+
             for (var j = 0; j < response.collection[i].tracks.length; j++) {
                 var songId = response.collection[i].tracks[j].id;
                 Discover.tracks[formatName].push(songId);
@@ -122,6 +145,9 @@ var Discover = {
         //empty song collection everytime a new selection is chosen
         var $final = $('#final');
         $final.empty();
+
+        //Bind chosen.jquery.min library to category selection
+        $("#categorySelection").chosen();
 
         //fill with selected content
         var response = JSON.parse(e.target.responseText);
@@ -202,7 +228,7 @@ var Discover = {
     },
 
     bindEvents : function() {
-        var $navList = $('#categories').find('li');
+        var $navList = Discover.$categories.find('li');
         var $data = $('#songsContainer').find('li');
         var finalDiv = document.createElement('div');
         document.body.appendChild(finalDiv);
