@@ -10,6 +10,7 @@ var widget;
 var Discover = {
 
     $categories : null,
+    $categorySelection : null,
     params : {
         'auto_play'     : true,
         'auto_advance'  : true,
@@ -60,7 +61,7 @@ var Discover = {
         else {
             console.log('case 3');
             this.iFrame = document.createElement('iframe');
-            this.$categories.append(this.iFrame); //this takes a long time, do it with Javascript
+            Discover.$categories.append(this.iFrame); //this takes a long time, do it with Javascript
             this.iFrame.src = link;
             this.iFrame.setAttribute('class', 'iframe');
             this.iFrame.width = 530;
@@ -86,6 +87,7 @@ var Discover = {
         $('#lhs').append(categoryElement);
         categoryElement.setAttribute('id' , 'categorySelection');
         var categorySelection = document.getElementById('categorySelection');
+        Discover.$categorySelection = $(categorySelection); //cache selector to we can use again
 
         //Append extra crap to DOM
         var categoryUl = document.createElement('ul');
@@ -145,9 +147,6 @@ var Discover = {
         //empty song collection everytime a new selection is chosen
         var $final = $('#final');
         $final.empty();
-
-        //Bind chosen.jquery.min library to category selection
-        $("#categorySelection").chosen();
 
         //fill with selected content
         var response = JSON.parse(e.target.responseText);
@@ -235,6 +234,16 @@ var Discover = {
         finalDiv.setAttribute('id', 'final');
         var $dataParent = $data.parent();
 
+        //Initialize chosen.jquery to category selection list
+        Discover.$categorySelection.chosen();
+
+        //Listen for changes
+        Discover.$categorySelection.chosen().change(function() {
+            var newSelection = Discover.$categorySelection.chosen().val();
+            console.log('value changed to',  newSelection);
+        });
+
+        //instead of nav list click
         $navList.click(function() {
 
             //Every item becomes unselected
@@ -326,4 +335,30 @@ jQuery(document).ready(function() {
         whileplaying: null,     // callback during play (position update)
         // see optional flash 9-specific options, too
     }
+*/
+
+
+/* Good data structure for our content
+
+   { Categories : [song1, song2, ...], ... }
+
+    var c = {
+        'classical' : [
+            "75005583",
+            "75425411",
+            "76004618"
+        ],
+
+        'electronic' : [
+            "75749972",
+            "75518678",
+            "75504179"
+        ],
+
+        'urban' : [
+            "75969748",
+            "75969240",
+            "75495542"
+        ]
+    };
 */
