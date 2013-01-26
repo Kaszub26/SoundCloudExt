@@ -3,6 +3,18 @@
  * Date: 1/21/13
  */
 
+/**
+ * Extend the string object to allow a C string format
+ * @return {String}
+ */
+String.prototype.wiFormat = function () {
+    var pattern = /\{\d+\}/g;
+    var args = arguments;
+    return this.replace(pattern, function (capture) {
+        return args[capture.match(/\d+/)];
+    });
+};
+
 //TODO
 //change to Discover widget namespace
 var widget;
@@ -12,6 +24,7 @@ var Discover = {
     $playerContainer : null,
     $songsContainer : null,
     $categorySelection : null,
+    $chosenSelect : null,
     playerContainerSize: {
         'width' : 420,
         'height': 150
@@ -30,58 +43,23 @@ var Discover = {
         'start_track'   : 0,
         'callback'      : true
     },
+    defaultCategory : 'pop',
     categories : "https://api.sndcdn.com/explore/sounds/category?client_id=b45b1aa10f1ac2941910a7f0d10f8e28",
-    songData : "https://api.sndcdn.com/tracks.json?ids=", //append ids + clientId
-    clientId : "&client_id=b45b1aa10f1ac2941910a7f0d10f8e28",
+    songData : "https://api.sndcdn.com/tracks.json?ids={0}&client_id=b45b1aa10f1ac2941910a7f0d10f8e28", //append ids + clientId
+    linkFormat : 'https://w.soundcloud.com/player/?url=http://api.soundcloud.com/tracks/{0}&auto_play=true&auto_advance=true&buying=false&liking=true&download=false&sharing=false&show_artwork=true&show_comments=false&show_playcount=false&show_user=true&start_track=0&callback=true',
     tracks : {},
     doesExist : false,
-    iFrame : null,
+    currentSong : '',
+    $iFrame : null,
 
     playSong : function(songId) {
 
-
-        var link = 'https://w.soundcloud.com/player/' + '?url=http://api.soundcloud.com/tracks/' + songId + '&auto_play=true&auto_advance=true&buying=false&liking=true&download=false&sharing=false&show_artwork=true&show_comments=false&show_playcount=false&show_user=true&start_track=0&callback=true';
-
-        //Make sure you do no reload the player if you press the same icon
-        if (this.doesExist) {
-
-            var i = this.iFrame.src.indexOf(songId);
-            var isPlaying = (i >= 0); //if it contains it, then what is === -1?
-
-            //Check to see if song pressed is already playing
-            if (isPlaying) {
-                console.log('case 1', 'exists and is same song, do nothing.');
-                this.doesExist = true;
-            }
-
-            //PLayer exists, remove current player, add new player
-            else {
-                console.log('case 2', 'exists, so just change iFrame url to new song');
-                this.iFrame.src = link;
-                this.doesExist = true;
-            }
+        if (Discover.currentSong !== songId) {
+            Discover.currentSong = songId;
+            Discover.$iFrame.src = Discover.linkFormat.wiFormat(songId);
+            widget = SC.Widget(Discover.$iFrame);
+            Discover.$iFrame.show();
         }
-
-        //Player does not exist, create a new one, append to body
-        else {
-            console.log('case 3');
-            this.iFrame = document.createElement('iframe');
-            Discover.$playerContainer.appendChild(this.iFrame); //this takes a long time, do it with Javascript
-            this.iFrame.src = link;
-            this.iFrame.setAttribute('class', 'iframe');
-
-            this.iFrame.width = Discover.playerContainerSize.width;
-            this.iFrame.height = Discover.playerContainerSize.height;
-            this.doesExist = true;
-            widget = SC.Widget(this.iFrame);
-        }
-    },
-
-    requestCategories: function() {
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", this.categories, true);
-        xhr.onload = this.showData.bind(this);
-        xhr.send();
     },
 
     showData: function(e) {
@@ -89,75 +67,35 @@ var Discover = {
         console.log(response);
 
         //Create chosen.jquery.min category list
-        var categoryElement = document.createElement('select');
-        $('#lhs').append(categoryElement);
-        categoryElement.setAttribute('id' , 'categorySelection');
-        var categorySelection = document.getElementById('categorySelection');
-        Discover.$categorySelection = $(categorySelection); //cache selector to we can use again
+        $('#lhs').append('<select id="categorySelection" style="width: 170px"></select>');
+        Discover.$categorySelection = $('#categorySelection'); //cache selector to we can use again
 
-        //////////////////////////////////////////////////////////////////////
-        //Append extra crap to DOM
-        //GET RID OF THIS
-        /*
-        var categoryUl = document.createElement('ul');
-        var songsDiv = document.createElement('div');
-        if (document.body != null) {
-            document.body.appendChild(categoryUl);
-            categoryUl.setAttribute('id', 'categories');
-            Discover.$categories = $(categoryUl);
-            document.body.appendChild(songsDiv);
-            songsDiv.setAttribute('id', 'songsContainer');
-            var songsContainer = document.getElementById('songsContainer');
-        }
-        */
-        //////////////////////////////////////////////////////////////////////
+        var optionTemplate = '<option value="{0}" {1}>{2}</option>';
+        var options = '';
 
-        //var list = document.getElementById('categories');
-        for (var i = 0; i < response.collection.length; i++) {
+        for (var i = 0, collectionLength = response.collection.length; i < collectionLength; i++) {
             var name = response.collection[i].name.toLowerCase().replace(/ /g, '');     //Make items lower case and remove space TODO one regex
             var formatName = name.replace(/[&\+]/g, '');                                //Replace &, +, and other uncessary characters with ''
             Discover.tracks[formatName] = [];
 
-            //New selection of categories
-            var categoryOption = document.createElement('option');
-            categoryOption.innerHTML = name;
-            categoryOption.setAttribute('value', formatName);
-            categorySelection.appendChild(categoryOption);
+            options += optionTemplate.wiFormat(formatName, formatName === Discover.defaultCategory ? 'selected=selected' : '', name);
 
-            //Make the first item selected by default
-            if (i === 0) {
-                categoryOption.setAttribute('selected' , 'selected');
-            }
-
-            //////////////////////////////////////////////////////////////////////
-            //NOT GOING TO NEED THIS
-            //Old list of categories
-            /*
-            var item = document.createElement('li');
-            item.innerHTML = name;
-            item.setAttribute('data-category', formatName);
-            list.appendChild(item);
-
-            var songs = document.createElement('ul');
-            songsContainer.appendChild(songs);
-            songs.setAttribute('id', formatName);
-            songs.setAttribute('class', 'hide');
-            */
-
-            for (var j = 0; j < response.collection[i].tracks.length; j++) {
+            for (var j = 0, tracksLength = response.collection[i].tracks.length; j < tracksLength; j++) {
                 var songId = response.collection[i].tracks[j].id;
                 Discover.tracks[formatName].push(songId);
-                /*
-                var song = document.createElement('li');
-                song.setAttribute('data-id', songId);
-                song.innerHTML = songId;
-                var categoryList = document.getElementById(formatName);
-                categoryList.appendChild(song);
-                */
             }
         }
+        Discover.$categorySelection.append(options);
+
+        //Initialize chosen.jquery to category selection list
+        Discover.$chosenSelect = Discover.$categorySelection.chosen();
+
+        var newSelection =  Discover.$chosenSelect.val();
+        var requestUrl = Discover.songData.wiFormat(Discover.tracks[newSelection].join(','));
+        Discover.invokeSoundCloud(requestUrl, Discover.showResults);
+
         console.log(Discover.tracks);
-        this.bindEvents();
+        Discover.bindEvents();
     },
 
     showResults : function(e) {
@@ -171,6 +109,7 @@ var Discover = {
 
         //fill with selected content
         var response = JSON.parse(e.target.responseText);
+
         console.log(response);
         for (var i = 0; i < response.length; i++) {
 
@@ -254,130 +193,41 @@ var Discover = {
     },
 
     bindEvents : function() {
-        /*
-        var $navList = Discover.$categories.find('li');
-        var $data = $('#songsContainer').find('li');
-        */
-
-        /*
-        var $dataParent = $data.parent();
-         */
-
-        //Initialize chosen.jquery to category selection list
-        Discover.$categorySelection.chosen();
-        $('#categorySelection_chzn').width(170);
-
 
         //Listen for changes
-        Discover.$categorySelection.chosen().change(function() {
-            var newSelection = Discover.$categorySelection.chosen().val();
+        Discover.$chosenSelect.change(function() {
+
+            var newSelection =  Discover.$chosenSelect.val();
             console.log('value changed to',  newSelection);
 
             //Update boxes with new selected value
-            var requestUrl = Discover.songData;
-            var category = Discover.tracks[newSelection]; //might have to strip it becasue the selection text is different than array data
-
-            //Iterate over all of the songs in a category to get songIDs
-            for (var song in category) {
-                if (category.hasOwnProperty(song)) {
-
-                    //Append each of the song ids to the URL query
-                    var songId = category[song];
-                    requestUrl += songId + ',';
-                    console.log(songId, requestUrl);
-                }
-            }
-
-            //Finally append client id to authorize request
-            requestUrl += Discover.clientId;
+            var requestUrl = Discover.songData.wiFormat(Discover.tracks[newSelection].join(','));
             console.log(requestUrl);
 
-            //Request songs from the selected category
-            var xhrSong = new XMLHttpRequest();
-            xhrSong.open("GET", requestUrl, true);
-            xhrSong.onload = Discover.showResults.bind(this);
-            xhrSong.send();
+            Discover.invokeSoundCloud(requestUrl, Discover.showResults);
         });
-
-        //instead of nav list click
-        //$navList.click(function() {
-
-            /*
-            //Every item becomes unselected
-            //ensures only 1 item is ever selected
-            $navList.each(function() {
-                $(this).removeClass('selected');
-            });
-
-            //Hide the data-id list of songs
-            //TODO make this a array instead of DOM elements
-            $dataParent.each(function() {
-                $(this).addClass('hide');
-            });
-            */
-
-            /*
-            //Selected the clicked item
-            $(this).addClass('selected');
-            */
-
-            /*
-            //Which item is selected
-            var $which = $(this).attr('data-category');
-            var selector = '#' + $which; //doesn't work #blah&blah, need to escape string
-            console.log($which, selector);
-
-            //Get resources for selected nav item
-            var reqUrl = Discover.songData;
-            var obj = Discover.tracks[$which];
-            for (var key in obj) {
-                if (obj.hasOwnProperty(key)) {
-                    console.log(obj[key]);
-                }
-            }
-            */
-
-            /*
-            //var temp = document.createElement('ul');
-            //jQuery('songsContainer').append(temp);
-            //temp.setAttribute('id', $which);
-
-            $(selector).children().each(function() {
-                reqUrl += $(this).attr('data-id') + ','; //should use array value instead of DOM li
-            });
-            reqUrl += Discover.clientId;
-            console.log(reqUrl);
-            */
-
-            /*
-            //request songs from the clicked category
-            var xhrSong = new XMLHttpRequest();
-            xhrSong.open("GET", reqUrl, true);
-            xhrSong.onload = Discover.showResults.bind(this);
-            xhrSong.send();
-            $(selector).removeClass('hide');
-            */
-        //});
-
-        /*
-        $data.click(function(e) {
-            $data.each(function() {
-                $(this).removeClass('selected');
-            });
-            $(this).addClass('selected');
-        });
-        */
 
         //Discover.$categories.find('li:first').click();
+    },
+
+    invokeSoundCloud : function(url, callback) {
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", url, true);
+        xhr.onload = callback;
+        xhr.send();
     }
 };
 
 
 jQuery(document).ready(function() {
-    Discover.$playerContainer = document.getElementById('playerContainer');
-    var songsContainer = document.getElementById('songsContainer');
-    Discover.$songsContainer = $(songsContainer);
-    Discover.requestCategories();
+    $('body').append('<iframe id="iFrame" style="display: none;"></iframe>');
+    Discover.$iFrame = $('#iFrame');
+    Discover.$iFrame.width = Discover.playerContainerSize.width;
+    Discover.$iFrame.height = Discover.playerContainerSize.height;
+    Discover.$playerContainer = $('#playerContainer');
+    Discover.$songsContainer = $('#songsContainer');
+    Discover.invokeSoundCloud(Discover.categories, Discover.showData);
 });
 
 
