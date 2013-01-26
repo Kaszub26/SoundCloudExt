@@ -9,8 +9,13 @@ var widget;
 
 var Discover = {
 
-    $categories : null,
+    $playerContainer : null,
+    $songsContainer : null,
     $categorySelection : null,
+    playerContainerSize: {
+        'width' : 420,
+        'height': 150
+    },
     params : {
         'auto_play'     : true,
         'auto_advance'  : true,
@@ -61,11 +66,12 @@ var Discover = {
         else {
             console.log('case 3');
             this.iFrame = document.createElement('iframe');
-            Discover.$categories.append(this.iFrame); //this takes a long time, do it with Javascript
+            Discover.$playerContainer.appendChild(this.iFrame); //this takes a long time, do it with Javascript
             this.iFrame.src = link;
             this.iFrame.setAttribute('class', 'iframe');
-            this.iFrame.width = 530;
-            this.iFrame.height = 180;
+
+            this.iFrame.width = Discover.playerContainerSize.width;
+            this.iFrame.height = Discover.playerContainerSize.height;
             this.doesExist = true;
             widget = SC.Widget(this.iFrame);
         }
@@ -89,7 +95,10 @@ var Discover = {
         var categorySelection = document.getElementById('categorySelection');
         Discover.$categorySelection = $(categorySelection); //cache selector to we can use again
 
+        //////////////////////////////////////////////////////////////////////
         //Append extra crap to DOM
+        //GET RID OF THIS
+        /*
         var categoryUl = document.createElement('ul');
         var songsDiv = document.createElement('div');
         if (document.body != null) {
@@ -100,7 +109,10 @@ var Discover = {
             songsDiv.setAttribute('id', 'songsContainer');
             var songsContainer = document.getElementById('songsContainer');
         }
-        var list = document.getElementById('categories');
+        */
+        //////////////////////////////////////////////////////////////////////
+
+        //var list = document.getElementById('categories');
         for (var i = 0; i < response.collection.length; i++) {
             var name = response.collection[i].name.toLowerCase().replace(/ /g, '');     //Make items lower case and remove space TODO one regex
             var formatName = name.replace(/[&\+]/g, '');                                //Replace &, +, and other uncessary characters with ''
@@ -117,7 +129,10 @@ var Discover = {
                 categoryOption.setAttribute('selected' , 'selected');
             }
 
+            //////////////////////////////////////////////////////////////////////
+            //NOT GOING TO NEED THIS
             //Old list of categories
+            /*
             var item = document.createElement('li');
             item.innerHTML = name;
             item.setAttribute('data-category', formatName);
@@ -127,15 +142,18 @@ var Discover = {
             songsContainer.appendChild(songs);
             songs.setAttribute('id', formatName);
             songs.setAttribute('class', 'hide');
+            */
 
             for (var j = 0; j < response.collection[i].tracks.length; j++) {
                 var songId = response.collection[i].tracks[j].id;
                 Discover.tracks[formatName].push(songId);
+                /*
                 var song = document.createElement('li');
                 song.setAttribute('data-id', songId);
                 song.innerHTML = songId;
                 var categoryList = document.getElementById(formatName);
                 categoryList.appendChild(song);
+                */
             }
         }
         console.log(Discover.tracks);
@@ -145,18 +163,24 @@ var Discover = {
     showResults : function(e) {
 
         //empty song collection everytime a new selection is chosen
-        var $final = $('#final');
+        Discover.$songsContainer.empty();
+        /*
+        var $final = $('songsContainer');
         $final.empty();
+        */
 
         //fill with selected content
         var response = JSON.parse(e.target.responseText);
         console.log(response);
         for (var i = 0; i < response.length; i++) {
+
+
+            //Do seperate ones for every parameter
             if (response[i].artwork_url) {
 
                 //<li>
                 var songLi = document.createElement('li');
-                $final.append(songLi);
+                Discover.$songsContainer.append(songLi);
                 songLi.setAttribute('data-id', response[i].id);
 
                 //img
@@ -178,21 +202,24 @@ var Discover = {
                 songLi.appendChild(audioBtn);
                 audioBtn.setAttribute('class', 'audioBtn');
 
-                //artist & song name, plus hider
+                //artist name
                 var artist = document.createElement('div');
                 songLi.appendChild(artist);
                 artist.innerHTML = response[i].user.username;
                 artist.setAttribute('class', 'artist');
 
+                //song name
                 var title = document.createElement('div');
                 songLi.appendChild(title);
                 title.innerHTML = response[i].title;
                 title.setAttribute('class', 'title');
 
+                //White gradient hider over text
                 var hider = document.createElement('div');
                 songLi.appendChild(hider);
                 hider.setAttribute('class', 'hider');
 
+                //currently empty
                 var player = document.createElement('div');
                 songLi.appendChild(player);
                 player.setAttribute('id', 'player');
@@ -202,7 +229,7 @@ var Discover = {
                 //not in this version
             }
         }
-        var $list = $final.find('li');
+        var $list = Discover.$songsContainer.find('li');
         $list.click(function() {
             var isSelected = $(this).hasClass('selected');
             if (isSelected) {
@@ -216,7 +243,7 @@ var Discover = {
             }
         });
 
-        $final.find('li').hover(
+        Discover.$songsContainer.find('li').hover(
             //mouseOver
             function() { //jQuery(this).find('.wave').height(24);
             },
@@ -227,25 +254,55 @@ var Discover = {
     },
 
     bindEvents : function() {
+        /*
         var $navList = Discover.$categories.find('li');
         var $data = $('#songsContainer').find('li');
-        var finalDiv = document.createElement('div');
-        document.body.appendChild(finalDiv);
-        finalDiv.setAttribute('id', 'final');
+        */
+
+        /*
         var $dataParent = $data.parent();
+         */
 
         //Initialize chosen.jquery to category selection list
         Discover.$categorySelection.chosen();
+        $('#categorySelection_chzn').width(170);
+
 
         //Listen for changes
         Discover.$categorySelection.chosen().change(function() {
             var newSelection = Discover.$categorySelection.chosen().val();
             console.log('value changed to',  newSelection);
+
+            //Update boxes with new selected value
+            var requestUrl = Discover.songData;
+            var category = Discover.tracks[newSelection]; //might have to strip it becasue the selection text is different than array data
+
+            //Iterate over all of the songs in a category to get songIDs
+            for (var song in category) {
+                if (category.hasOwnProperty(song)) {
+
+                    //Append each of the song ids to the URL query
+                    var songId = category[song];
+                    requestUrl += songId + ',';
+                    console.log(songId, requestUrl);
+                }
+            }
+
+            //Finally append client id to authorize request
+            requestUrl += Discover.clientId;
+            console.log(requestUrl);
+
+            //Request songs from the selected category
+            var xhrSong = new XMLHttpRequest();
+            xhrSong.open("GET", requestUrl, true);
+            xhrSong.onload = Discover.showResults.bind(this);
+            xhrSong.send();
         });
 
         //instead of nav list click
-        $navList.click(function() {
+        //$navList.click(function() {
 
+            /*
             //Every item becomes unselected
             //ensures only 1 item is ever selected
             $navList.each(function() {
@@ -257,10 +314,14 @@ var Discover = {
             $dataParent.each(function() {
                 $(this).addClass('hide');
             });
+            */
 
+            /*
             //Selected the clicked item
             $(this).addClass('selected');
+            */
 
+            /*
             //Which item is selected
             var $which = $(this).attr('data-category');
             var selector = '#' + $which; //doesn't work #blah&blah, need to escape string
@@ -274,37 +335,48 @@ var Discover = {
                     console.log(obj[key]);
                 }
             }
+            */
 
+            /*
             //var temp = document.createElement('ul');
-            //jQuery('#final').append(temp);
+            //jQuery('songsContainer').append(temp);
             //temp.setAttribute('id', $which);
+
             $(selector).children().each(function() {
                 reqUrl += $(this).attr('data-id') + ','; //should use array value instead of DOM li
             });
             reqUrl += Discover.clientId;
             console.log(reqUrl);
+            */
 
+            /*
             //request songs from the clicked category
             var xhrSong = new XMLHttpRequest();
             xhrSong.open("GET", reqUrl, true);
             xhrSong.onload = Discover.showResults.bind(this);
             xhrSong.send();
             $(selector).removeClass('hide');
-        });
+            */
+        //});
 
+        /*
         $data.click(function(e) {
             $data.each(function() {
                 $(this).removeClass('selected');
             });
             $(this).addClass('selected');
         });
+        */
 
-        Discover.$categories.find('li:first').click();
+        //Discover.$categories.find('li:first').click();
     }
 };
 
 
 jQuery(document).ready(function() {
+    Discover.$playerContainer = document.getElementById('playerContainer');
+    var songsContainer = document.getElementById('songsContainer');
+    Discover.$songsContainer = $(songsContainer);
     Discover.requestCategories();
 });
 

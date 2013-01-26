@@ -7,7 +7,7 @@ body {
     height: 500px;*/
     margin: 0px;
     padding: 0px;
-    background: transparent url('../wireFrame.png') no-repeat;
+    xbackground: transparent url('../wireFrame.png') no-repeat;
 }
 footer {
     /*position: absolute;*/
@@ -31,7 +31,7 @@ footer a:last-child {
     /*background-color: #fff;*/
 }
 ul#categories,
-#final li {
+#songsContainer li {
     list-style-type: none;
     margin: 0;
     padding: 0;
@@ -65,23 +65,23 @@ ul#categories li.selected {
     display: none;
 }
 #songsContainer {
-    display: none;
+
 }
-#final li  {
+#songsContainer li  {
     display: inline-block;
     padding: 2px;
     position: relative;
     width: 130px;
 }
 
-#final li:hover {
+#songsContainer li:hover {
     cursor: pointer;
 }
 
-#final li .art {
+#songsContainer li .art {
     width: 130px;
 }
-#final li .wave {
+#songsContainer li .wave {
     position: absolute;
     z-index: 2;
     width: 130px;
@@ -92,10 +92,10 @@ ul#categories li.selected {
     opacity: 0.9;
 }
 
-#final li .wave.minimize {
+#songsContainer li .wave.minimize {
 }
 
-#final li .audioBtn {
+#songsContainer li .audioBtn {
     position: absolute;
     top: 47px;
     left: 54px;
@@ -106,30 +106,30 @@ ul#categories li.selected {
     background-position: 0 -60px;
 }
 
-#final li:hover .audioBtn {
+#songsContainer li:hover .audioBtn {
     background-position: 0 -90px;
 }
 
-#final li .artist {
+#songsContainer li .artist {
     color: #b3b3b3;
     font-size: 10px;
     width: 130px;
     height: 11px;
 }
-#final li .title {
+#songsContainer li .title {
     color: #666;
     font-size: 11px;
     width: 130px;
     height: 13px;
 }
-#final li .title,
-#final li .artist {
+#songsContainer li .title,
+#songsContainer li .artist {
     font-family: Interstate, "Lucida Grande", Helvetica, Arial, sans-serif;
     white-space: nowrap;
     overflow: hidden;
 }
 
-#final li .hider {
+#songsContainer li .hider {
     position: absolute;
     background: transparent url('../images/hider-fade.png') no-repeat;
     width: 32px;
@@ -139,11 +139,11 @@ ul#categories li.selected {
     right: 0px;
 }
 
-/*#final li.selected .audioBtn {*/
+/*#songsContainer li.selected .audioBtn {*/
     /*background-position: 0px 0px;*/
 /*}*/
 
-/*#final li.selected:hover .audioBtn {*/
+/*#songsContainer li.selected:hover .audioBtn {*/
     /*background-position: 0px -30px;*/
 /*}*/
 
@@ -154,21 +154,84 @@ ul#categories li.selected {
 
 #lhs {
     width: 200px;
-    height: 400px;
+    height: 420px;
     float: left;
+}
+
+/*
+TODO change image to no record, just clouds but semi transparent
+*/
+#lhs #recordOverlay {
+    background: transparent url('../images/recordOverlay2.png') no-repeat;
+    position: absolute;
+    z-index: 0;
+    width: 380px;
+    height: 380px;
+
+    top: 9px;
+    left: -180px;
+
+    animations: spin1 10s infinite linear;
+    -moz-animation: spin1 10s infinite linear;
+    -webkit-animation: spin1 10s infinite linear;
+}
+
+#lhs #record {
+    background: transparent url('../images/record.png') no-repeat;
+    position: absolute;
+    z-index: 0;
+    width: 380px;
+    height: 380px;
+
+    top: 9px;
+    left: -180px;
+
+    animations: spin1 10s infinite linear;
+    -moz-animation: spin1 10s infinite linear;
+    -webkit-animation: spin1 10s infinite linear;
+}
+
+@keyframes spin1 {
+    0% { transform: rotate(0deg);}
+    100% { transform: rotate(360deg);}
+}
+
+/* FireFox */
+@-moz-keyframes spin1 {
+    0% { -moz-transform: rotate(0deg);}
+    100% { -moz-transform: rotate(360deg);}
+}
+
+/* Chrome Opra */
+@-webkit-keyframes spin1 {
+    0% { -webkit-transform: rotate(0deg);}
+    100% { -webkit-transform: rotate(360deg);}
 }
 
 #lhs #categorySelection_chzn {
     position: absolute;
     top: 185px;
-    left: 37px;
+    left: 27px;
+    width: 200px;
 }
+
 #lhs .chzn-container .chzn-results {
     max-height: 124px;
 }
 
 #rhs {
-    width: 400px;
+    width: 420px;
     height: 400px;
     float: left;
+}
+#playerContainer {
+    width: 420px;
+    margin-top: 10px;
+}
+
+#songsContainer {
+    background-color: #fff;
+    width: 420px;
+    xheight: 318px;
+    overflow-y: scroll;
 }
