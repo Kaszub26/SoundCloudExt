@@ -47,6 +47,7 @@ var Discover = {
     defaultAlbumArt : 'images/default-artwork.png',
     defaultCategory : 'pop',
     currentCategory : 'pop',
+    categoryExpirationInMilliseconds : 60000, //3600000 , //one hour
     categories : "https://api.sndcdn.com/explore/sounds/category?client_id=b45b1aa10f1ac2941910a7f0d10f8e28",
     songData : "https://api.sndcdn.com/tracks.json?ids={0}&client_id=b45b1aa10f1ac2941910a7f0d10f8e28", //append ids + clientId
     linkFormat : 'https://w.soundcloud.com/player/?url=http://api.soundcloud.com/tracks/{0}&auto_play=true&auto_advance=true&buying=false&liking=true&download=false&sharing=false&show_artwork=true&show_comments=false&show_playcount=false&show_user=true&start_track=0&callback=true',
@@ -69,19 +70,7 @@ var Discover = {
 
     showData: function(data) {
 
-        //console.log(data);
-
-        var response;
-        if (data.target) {
-            LocalStorageHelper.setItem('SoundCloud_Categories', data.target.response);
-            response = JSON.parse(data.target.response);
-        }
-        else {
-            response = JSON.parse(data);
-            console.log('parse the localstoraged!!!');
-        }
-
-        //var response = JSON.parse(e.target.responseText);
+        var response = JSON.parse(data.target.response);
 
         //Create chosen.jquery.min category list
         $('#lhs').append('<select id="categorySelection" style="width: 170px"></select>');
@@ -111,27 +100,10 @@ var Discover = {
 
         //TODO check if it exists in local storage
         var newSelection =  Discover.$chosenSelect.val();
-        /*
-        var newSelection =  Discover.$chosenSelect.val();
-         var requestUrl = Discover.songData.wiFormat(Discover.tracks[newSelection].join(','));
-         Discover.invokeSoundCloud(requestUrl, Discover.showResults);
-         */
+        var requestUrl = Discover.songData.wiFormat(Discover.tracks[newSelection].join(','));
+        Discover.invokeSoundCloud(requestUrl, Discover.showResults);
 
-
-        //TODO check if it exists in local storage
-        var cachedSongData = LocalStorageHelper.getItem('SoundCloud_Categories_' + Discover.defaultCategory);
-        if (cachedSongData) {
-            console.log('cachedSongData already exist woo!');
-            Discover.showResults(cachedSongData);
-        }
-        else {
-            //Update boxes with new selected value
-            var requestUrl = Discover.songData.wiFormat(Discover.tracks[newSelection].join(','));
-            console.log(requestUrl);
-            console.log('they dont, lets fetch them...');
-            Discover.invokeSoundCloud(requestUrl, Discover.showResults);
-        }
-
+        console.log(requestUrl);
         console.log(Discover.tracks);
         Discover.bindEvents();
     },
@@ -139,17 +111,7 @@ var Discover = {
     showResults : function(data) {
 
         //console.log(data);
-        var response;
-        if (data.target) {
-            LocalStorageHelper.setItem('SoundCloud_Categories_' + Discover.currentCategory, data.target.response);
-            response = JSON.parse(data.target.response);
-        }
-        else {
-            response = JSON.parse(data);
-            console.log('parse the localstoraged!!!');
-        }
-
-        //var response = JSON.parse(e.target.responseText);
+        var response = JSON.parse(data.target.response);
 
         //fill with selected content
         var trackTemplate = '<li data-id="{0}"><img src="{1}" class="art"/><div class="audioBtn"></div><div class="artist">{2}</div><div class="title">{3}</div><div class="hider"></div></li>';
@@ -198,26 +160,10 @@ var Discover = {
             console.log('value changed to',  newSelection);
             Discover.currentCategory = newSelection;
 
-
-            //TODO check if it exists in local storage
-            var cachedSongData = LocalStorageHelper.getItem('SoundCloud_Categories_' + newSelection);
-            if (cachedSongData) {
-                console.log('cachedSongData already exist woo!');
-                Discover.showResults(cachedSongData);
-            }
-            else {
-                //Update boxes with new selected value
-                var requestUrl = Discover.songData.wiFormat(Discover.tracks[newSelection].join(','));
-                console.log(requestUrl);
-                console.log('they dont, lets fetch them...');
-                Discover.invokeSoundCloud(requestUrl, Discover.showResults);
-            }
-
             //Update boxes with new selected value
-            //var requestUrl = Discover.songData.wiFormat(Discover.tracks[newSelection].join(','));
-            //console.log(requestUrl);
-
-            //Discover.invokeSoundCloud(requestUrl, Discover.showResults);
+            var requestUrl = Discover.songData.wiFormat(Discover.tracks[newSelection].join(','));
+            console.log(requestUrl);
+            Discover.invokeSoundCloud(requestUrl, Discover.showResults);
         });
     },
 
@@ -230,47 +176,8 @@ var Discover = {
     }
 };
 
-LocalStorageHelper = {
-
-    // Store item in local storage:
-    setItem : function(key, value) {
-        try {
-            //console.log("Storing [" + key + ":" + value + "]");
-            window.localStorage.removeItem(key);      // <-- Local storage!
-            window.localStorage.setItem(key, value);  // <-- Local storage!
-        } catch(e) {
-            console.log("Error inside setItem");
-            console.log(e);
-        }
-        //console.log("Return from setItem" + key + ":" +  value);
-    },
-
-    // Gets item from local storage with specified key.
-    getItem : function(key) {
-        var value;
-        //console.log('Retrieving key [' + key + ']');
-        try {
-            value = window.localStorage.getItem(key);  // <-- Local storage!
-        } catch(e) {
-            console.log("Error inside getItem() for key:" + key);
-            console.log(e);
-            value = "null";
-        }
-        //console.log("Returning value: " + value);
-        return value;
-    },
-
-    // Clears all key/value pairs in local storage.
-    clearStorage : function() {
-        console.log('about to clear local storage');
-        window.localStorage.clear(); // <-- Local storage!
-        console.log('cleared');
-    }
-};
-
-
 jQuery(document).ready(function() {
-    LocalStorageHelper.clearStorage();
+    //LocalStorageHelper.clearStorage();
     Discover.$playerContainer = $('#playerContainer');
     Discover.$playerContainer.append('<iframe id="iFrame" style="display: none; width:{0}px; height:{1}px;"></iframe>'
         .wiFormat(Discover.playerContainerSize.width, Discover.playerContainerSize.height)
@@ -279,16 +186,7 @@ jQuery(document).ready(function() {
     Discover.$songsContainer = $('#songsContainer');
     Discover.$loaderSelect = $('#loader');
 
-    var cachedCategories = LocalStorageHelper.getItem('SoundCloud_Categories');
-    if (cachedCategories) {
-        console.log('categories already exist woo!');
-        Discover.showData(cachedCategories);
-    }
-    else {
-        console.log('they dont, lets fetch them...');
-        Discover.invokeSoundCloud(Discover.categories, Discover.showData);
-    }
-    //Discover.invokeSoundCloud(Discover.categories, Discover.showData);
+    Discover.invokeSoundCloud(Discover.categories, Discover.showData);
     Discover.$songsContainer.css('visibility', 'hidden');
     Discover.$loaderSelect.show();
 });
