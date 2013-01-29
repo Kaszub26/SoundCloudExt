@@ -46,6 +46,7 @@ var Discover = {
     },
     defaultAlbumArt : 'images/default-artwork.png',
     defaultCategory : 'pop',
+    currentCategory : 'pop',
     categories : "https://api.sndcdn.com/explore/sounds/category?client_id=b45b1aa10f1ac2941910a7f0d10f8e28",
     songData : "https://api.sndcdn.com/tracks.json?ids={0}&client_id=b45b1aa10f1ac2941910a7f0d10f8e28", //append ids + clientId
     linkFormat : 'https://w.soundcloud.com/player/?url=http://api.soundcloud.com/tracks/{0}&auto_play=true&auto_advance=true&buying=false&liking=true&download=false&sharing=false&show_artwork=true&show_comments=false&show_playcount=false&show_user=true&start_track=0&callback=true',
@@ -62,13 +63,25 @@ var Discover = {
             widget = SC.Widget(Discover.$iFrame[0]);
             Discover.$iFrame.show();
             Discover.$songsContainer.css('height', '330');
+            Discover.$loaderSelect.css('top' , '145px');
         }
     },
 
-    showData: function(e) {
+    showData: function(data) {
 
-        var response = JSON.parse(e.target.responseText);
-        console.log(response);
+        //console.log(data);
+
+        var response;
+        if (data.target) {
+            LocalStorageHelper.setItem('SoundCloud_Categories', data.target.response);
+            response = JSON.parse(data.target.response);
+        }
+        else {
+            response = JSON.parse(data);
+            console.log('parse the localstoraged!!!');
+        }
+
+        //var response = JSON.parse(e.target.responseText);
 
         //Create chosen.jquery.min category list
         $('#lhs').append('<select id="categorySelection" style="width: 170px"></select>');
@@ -78,6 +91,7 @@ var Discover = {
         var options = '';
 
         for (var i = 0, collectionLength = response.collection.length; i < collectionLength; i++) {
+
             var name = response.collection[i].name.toLowerCase().replace(/ /g, '');     //Make items lower case and remove space TODO one regex
             var formatName = name.replace(/[&\+]/g, '');                                //Replace &, +, and other uncessary characters with ''
             Discover.tracks[formatName] = [];
@@ -94,36 +108,68 @@ var Discover = {
         //Initialize chosen.jquery to category selection list
         Discover.$chosenSelect = Discover.$categorySelection.chosen();
 
+
+        //TODO check if it exists in local storage
         var newSelection =  Discover.$chosenSelect.val();
-        var requestUrl = Discover.songData.wiFormat(Discover.tracks[newSelection].join(','));
-        Discover.invokeSoundCloud(requestUrl, Discover.showResults);
+        /*
+        var newSelection =  Discover.$chosenSelect.val();
+         var requestUrl = Discover.songData.wiFormat(Discover.tracks[newSelection].join(','));
+         Discover.invokeSoundCloud(requestUrl, Discover.showResults);
+         */
+
+
+        //TODO check if it exists in local storage
+        var cachedSongData = LocalStorageHelper.getItem('SoundCloud_Categories_' + Discover.defaultCategory);
+        if (cachedSongData) {
+            console.log('cachedSongData already exist woo!');
+            Discover.showResults(cachedSongData);
+        }
+        else {
+            //Update boxes with new selected value
+            var requestUrl = Discover.songData.wiFormat(Discover.tracks[newSelection].join(','));
+            console.log(requestUrl);
+            console.log('they dont, lets fetch them...');
+            Discover.invokeSoundCloud(requestUrl, Discover.showResults);
+        }
 
         console.log(Discover.tracks);
         Discover.bindEvents();
     },
 
-    showResults : function(e) {
+    showResults : function(data) {
+
+        //console.log(data);
+        var response;
+        if (data.target) {
+            LocalStorageHelper.setItem('SoundCloud_Categories_' + Discover.currentCategory, data.target.response);
+            response = JSON.parse(data.target.response);
+        }
+        else {
+            response = JSON.parse(data);
+            console.log('parse the localstoraged!!!');
+        }
+
+        //var response = JSON.parse(e.target.responseText);
 
         //fill with selected content
-        var response = JSON.parse(e.target.responseText);
         var trackTemplate = '<li data-id="{0}"><img src="{1}" class="art"/><div class="audioBtn"></div><div class="artist">{2}</div><div class="title">{3}</div><div class="hider"></div></li>';
         var trackList = '';
 
-        console.log(response);
+        //console.log(response);
         for (var i = 0, trackLength = response.length; i < trackLength; i++) {
-
             trackList += trackTemplate.wiFormat(response[i].id, response[i].artwork_url || Discover.defaultAlbumArt, response[i].user.username, response[i].title);
-
         }
 
-        //empty song collection everytime a new selection is chosen
+        //empty song collection everytime a new selection is chosen, and hide loader
         Discover.$songsContainer.html(trackList);
 
-        Discover.$loaderSelect.hide();
-        Discover.$songsContainer.css('visibility', '');
+        //removes image loading flicker - images don't load fast enough
+        window.setTimeout(function() {
+            Discover.$songsContainer.css('visibility', '');
+            Discover.$loaderSelect.hide();
+        }, 150);
 
-
-
+        //Determines which song is currently selected
         var $list = Discover.$songsContainer.find('li');
         $list.click(function() {
             var isSelected = $(this).hasClass('selected');
@@ -137,37 +183,42 @@ var Discover = {
                 Discover.playSong(songId);
             }
         });
-
-        Discover.$songsContainer.find('li').hover(
-            //mouseOver
-            function() { //jQuery(this).find('.wave').height(24);
-            },
-            //mouseOut
-            function() {
-            }
-        );
     },
 
     bindEvents : function() {
 
+        //This needs to used cached data
         //Listen for changes
         Discover.$chosenSelect.change(function() {
 
             Discover.$songsContainer.css('visibility', 'hidden');
             Discover.$loaderSelect.show();
 
-
             var newSelection =  Discover.$chosenSelect.val();
             console.log('value changed to',  newSelection);
+            Discover.currentCategory = newSelection;
+
+
+            //TODO check if it exists in local storage
+            var cachedSongData = LocalStorageHelper.getItem('SoundCloud_Categories_' + newSelection);
+            if (cachedSongData) {
+                console.log('cachedSongData already exist woo!');
+                Discover.showResults(cachedSongData);
+            }
+            else {
+                //Update boxes with new selected value
+                var requestUrl = Discover.songData.wiFormat(Discover.tracks[newSelection].join(','));
+                console.log(requestUrl);
+                console.log('they dont, lets fetch them...');
+                Discover.invokeSoundCloud(requestUrl, Discover.showResults);
+            }
 
             //Update boxes with new selected value
-            var requestUrl = Discover.songData.wiFormat(Discover.tracks[newSelection].join(','));
-            console.log(requestUrl);
+            //var requestUrl = Discover.songData.wiFormat(Discover.tracks[newSelection].join(','));
+            //console.log(requestUrl);
 
-            Discover.invokeSoundCloud(requestUrl, Discover.showResults);
+            //Discover.invokeSoundCloud(requestUrl, Discover.showResults);
         });
-
-        //Discover.$categories.find('li:first').click();
     },
 
     invokeSoundCloud : function(url, callback) {
@@ -179,8 +230,47 @@ var Discover = {
     }
 };
 
+LocalStorageHelper = {
+
+    // Store item in local storage:
+    setItem : function(key, value) {
+        try {
+            //console.log("Storing [" + key + ":" + value + "]");
+            window.localStorage.removeItem(key);      // <-- Local storage!
+            window.localStorage.setItem(key, value);  // <-- Local storage!
+        } catch(e) {
+            console.log("Error inside setItem");
+            console.log(e);
+        }
+        //console.log("Return from setItem" + key + ":" +  value);
+    },
+
+    // Gets item from local storage with specified key.
+    getItem : function(key) {
+        var value;
+        //console.log('Retrieving key [' + key + ']');
+        try {
+            value = window.localStorage.getItem(key);  // <-- Local storage!
+        } catch(e) {
+            console.log("Error inside getItem() for key:" + key);
+            console.log(e);
+            value = "null";
+        }
+        //console.log("Returning value: " + value);
+        return value;
+    },
+
+    // Clears all key/value pairs in local storage.
+    clearStorage : function() {
+        console.log('about to clear local storage');
+        window.localStorage.clear(); // <-- Local storage!
+        console.log('cleared');
+    }
+};
+
 
 jQuery(document).ready(function() {
+    LocalStorageHelper.clearStorage();
     Discover.$playerContainer = $('#playerContainer');
     Discover.$playerContainer.append('<iframe id="iFrame" style="display: none; width:{0}px; height:{1}px;"></iframe>'
         .wiFormat(Discover.playerContainerSize.width, Discover.playerContainerSize.height)
@@ -188,7 +278,17 @@ jQuery(document).ready(function() {
     Discover.$iFrame = $('#iFrame');
     Discover.$songsContainer = $('#songsContainer');
     Discover.$loaderSelect = $('#loader');
-    Discover.invokeSoundCloud(Discover.categories, Discover.showData);
+
+    var cachedCategories = LocalStorageHelper.getItem('SoundCloud_Categories');
+    if (cachedCategories) {
+        console.log('categories already exist woo!');
+        Discover.showData(cachedCategories);
+    }
+    else {
+        console.log('they dont, lets fetch them...');
+        Discover.invokeSoundCloud(Discover.categories, Discover.showData);
+    }
+    //Discover.invokeSoundCloud(Discover.categories, Discover.showData);
     Discover.$songsContainer.css('visibility', 'hidden');
     Discover.$loaderSelect.show();
 });

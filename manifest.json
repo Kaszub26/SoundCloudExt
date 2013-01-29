@@ -6,6 +6,7 @@
     "version": "1.0",
 
     "permissions": [
+        "storage",
         "https://api.sndcdn.com/",
         "http://api.sndcdn.com/",
         "http://connect.soundcloud.com/",
