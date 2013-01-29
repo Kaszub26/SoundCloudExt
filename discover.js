@@ -25,6 +25,7 @@ var Discover = {
     $songsContainer : null,
     $categorySelection : null,
     $chosenSelect : null,
+    $loaderSelect: null,
     playerContainerSize: {
         'width' : 420,
         'height': 150
@@ -43,6 +44,7 @@ var Discover = {
         'start_track'   : 0,
         'callback'      : true
     },
+    defaultAlbumArt : 'images/default-artwork.png',
     defaultCategory : 'pop',
     categories : "https://api.sndcdn.com/explore/sounds/category?client_id=b45b1aa10f1ac2941910a7f0d10f8e28",
     songData : "https://api.sndcdn.com/tracks.json?ids={0}&client_id=b45b1aa10f1ac2941910a7f0d10f8e28", //append ids + clientId
@@ -56,13 +58,15 @@ var Discover = {
 
         if (Discover.currentSong !== songId) {
             Discover.currentSong = songId;
-            Discover.$iFrame.src = Discover.linkFormat.wiFormat(songId);
-            widget = SC.Widget(Discover.$iFrame);
+            Discover.$iFrame.attr('src', Discover.linkFormat.wiFormat(songId));
+            widget = SC.Widget(Discover.$iFrame[0]);
             Discover.$iFrame.show();
+            Discover.$songsContainer.css('height', '330');
         }
     },
 
     showData: function(e) {
+
         var response = JSON.parse(e.target.responseText);
         console.log(response);
 
@@ -100,74 +104,26 @@ var Discover = {
 
     showResults : function(e) {
 
-        //empty song collection everytime a new selection is chosen
-        Discover.$songsContainer.empty();
-        /*
-        var $final = $('songsContainer');
-        $final.empty();
-        */
-
         //fill with selected content
         var response = JSON.parse(e.target.responseText);
+        var trackTemplate = '<li data-id="{0}"><img src="{1}" class="art"/><div class="audioBtn"></div><div class="artist">{2}</div><div class="title">{3}</div><div class="hider"></div></li>';
+        var trackList = '';
 
         console.log(response);
-        for (var i = 0; i < response.length; i++) {
+        for (var i = 0, trackLength = response.length; i < trackLength; i++) {
 
+            trackList += trackTemplate.wiFormat(response[i].id, response[i].artwork_url || Discover.defaultAlbumArt, response[i].user.username, response[i].title);
 
-            //Do seperate ones for every parameter
-            if (response[i].artwork_url) {
-
-                //<li>
-                var songLi = document.createElement('li');
-                Discover.$songsContainer.append(songLi);
-                songLi.setAttribute('data-id', response[i].id);
-
-                //img
-                var img = document.createElement('img');
-                img.src = response[i].artwork_url;
-                songLi.appendChild(img);
-                img.setAttribute('class', 'art');
-
-                //waveform
-                var wave = document.createElement('img');
-                wave.src = response[i].waveform_url;
-                songLi.appendChild(wave);
-                wave.width = img.width;
-                wave.height = img.height / 20;
-                wave.setAttribute('class', 'wave minimize');
-
-                //play button
-                var audioBtn = document.createElement('div');
-                songLi.appendChild(audioBtn);
-                audioBtn.setAttribute('class', 'audioBtn');
-
-                //artist name
-                var artist = document.createElement('div');
-                songLi.appendChild(artist);
-                artist.innerHTML = response[i].user.username;
-                artist.setAttribute('class', 'artist');
-
-                //song name
-                var title = document.createElement('div');
-                songLi.appendChild(title);
-                title.innerHTML = response[i].title;
-                title.setAttribute('class', 'title');
-
-                //White gradient hider over text
-                var hider = document.createElement('div');
-                songLi.appendChild(hider);
-                hider.setAttribute('class', 'hider');
-
-                //currently empty
-                var player = document.createElement('div');
-                songLi.appendChild(player);
-                player.setAttribute('id', 'player');
-
-                //TODO - like button
-                //
-                //not in this version
-            }
         }
+
+        //empty song collection everytime a new selection is chosen
+        Discover.$songsContainer.html(trackList);
+
+        Discover.$loaderSelect.hide();
+        Discover.$songsContainer.css('visibility', '');
+
+
+
         var $list = Discover.$songsContainer.find('li');
         $list.click(function() {
             var isSelected = $(this).hasClass('selected');
@@ -197,6 +153,10 @@ var Discover = {
         //Listen for changes
         Discover.$chosenSelect.change(function() {
 
+            Discover.$songsContainer.css('visibility', 'hidden');
+            Discover.$loaderSelect.show();
+
+
             var newSelection =  Discover.$chosenSelect.val();
             console.log('value changed to',  newSelection);
 
@@ -221,13 +181,16 @@ var Discover = {
 
 
 jQuery(document).ready(function() {
-    $('body').append('<iframe id="iFrame" style="display: none;"></iframe>');
-    Discover.$iFrame = $('#iFrame');
-    Discover.$iFrame.width = Discover.playerContainerSize.width;
-    Discover.$iFrame.height = Discover.playerContainerSize.height;
     Discover.$playerContainer = $('#playerContainer');
+    Discover.$playerContainer.append('<iframe id="iFrame" style="display: none; width:{0}px; height:{1}px;"></iframe>'
+        .wiFormat(Discover.playerContainerSize.width, Discover.playerContainerSize.height)
+    );
+    Discover.$iFrame = $('#iFrame');
     Discover.$songsContainer = $('#songsContainer');
+    Discover.$loaderSelect = $('#loader');
     Discover.invokeSoundCloud(Discover.categories, Discover.showData);
+    Discover.$songsContainer.css('visibility', 'hidden');
+    Discover.$loaderSelect.show();
 });
 
 
