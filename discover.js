@@ -63,8 +63,9 @@ var Discover = {
             Discover.$iFrame.attr('src', Discover.linkFormat.wiFormat(songId));
             widget = SC.Widget(Discover.$iFrame[0]);
             Discover.$iFrame.show();
-            Discover.$songsContainer.css('height', '330');
-            Discover.$loaderSelect.css('top' , '145px');
+            Discover.$songsContainer.css('height', '270');
+            Discover.$loaderSelect.css('top' , '100px');
+            $('#soften').css('top','165px');
         }
     },
 
@@ -114,7 +115,7 @@ var Discover = {
         var response = JSON.parse(data.target.response);
 
         //fill with selected content
-        var trackTemplate = '<li data-id="{0}"><img src="{1}" class="art"/><div class="audioBtn"></div><div class="artist">{2}</div><div class="title">{3}</div><div class="hider"></div></li>';
+        var trackTemplate = '<li data-id="{0}"><img src="{1}" class="art"/><div class="audioBtn"></div><div class="artist">{2}</div><div class="title">{3}</div><div class="hider"></div><div class="metaContainer"></div></li>';
         var trackList = '';
 
         //console.log(response);
@@ -164,6 +165,15 @@ var Discover = {
             var requestUrl = Discover.songData.wiFormat(Discover.tracks[newSelection].join(','));
             console.log(requestUrl);
             Discover.invokeSoundCloud(requestUrl, Discover.showResults);
+        });
+
+        Discover.$songsContainer.scroll(function() {
+            if ($(this).scrollTop() >= 5) {
+                $('#soften').css('visibility','visible');
+            }
+            else {
+                $('#soften').css('visibility','hidden');
+            }
         });
     },
 

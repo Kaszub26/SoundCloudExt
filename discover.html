@@ -10,20 +10,40 @@
     <link rel="stylesheet" type="text/css" href="style/lib/chosen.css">
 </head>
 <body>
-<div id="wrapper">
-    <div id="lhs">
-        <div id="record"></div>
-        <div id="recordOverlay"></div>
+<div id="master-wrapper">
+    <div id="header">
+        <a href="http://soundcloud.com/"><img src="images/orange_hori_logo.png"/></a>
     </div>
-    <div id="rhs">
-        <div id="loader" style="display:none;"><img src="images/loader.gif"/></div>
-        <div id="playerContainer"></div>
-        <ul id="songsContainer"></ul>
+    <div id="wrapper">
+        <div id="lhs">
+            <div id="recordShadow"></div>
+            <div id="record"></div>
+            <div id="recordOverlay"></div>
+        </div>
+        <div id="rhs">
+            <div id="loader" style="display:none;"><img src="images/loader.gif"/></div>
+            <div id="playerContainer"></div>
+            <div id="soften"></div>
+            <ul id="songsContainer">
+                <li data-id="77010722">
+                    <img src="https://i1.sndcdn.com/artworks-000039481768-zrj58d-large.jpg?cc158ba" class="art">
+                    <div class="audioBtn"></div>
+                    <div class="metaContainer">
+                        <div class="artist">Interscope Records</div>
+                        <div class="title">will.i.am - Scream &amp; Shout Remix (ft. Britney Spears, Hit Boy, Waka Flocka Flame, Lil Wayne &amp; Diddy)</div>
+                    </div>
+                    <div class="hider"></div>
+                </li>
+            </ul>
+        </div>
     </div>
+    <footer>
+        <div id="gradientFade"></div>
+        <div id="footerContent">
+            <a href="http://soundcloud.com/"><img src="images/poweredby.png"></a>
+            <!--<a href="http://soundcloud.com/"><img src="images/poweredbyConduit.png"></a>-->
+        </div>
+    </footer>
 </div>
-<footer>
-    <a href="http://soundcloud.com/"><img src="images/poweredby.png"></a>
-    <!--<a href="http://soundcloud.com/"><img src="images/poweredbyConduit.png"></a>-->
-</footer>
 </body>
 </html>
