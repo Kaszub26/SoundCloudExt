@@ -62,8 +62,8 @@ footer #footerContent {
     visibility: hidden;
     position: absolute;
     z-index: 5;
-    top: 10px; /*11px 165*/
-    height: 7px;
+    top: 8px; /*11px 165*/
+    height: 10px;
     width: 400px;
     background: -moz-linear-gradient(top,  rgba(255,255,255,1) 0%, rgba(255,255,255,0.01) 99%, rgba(255,255,255,0) 100%); /* FF3.6+ */
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,1)), color-stop(99%,rgba(255,255,255,0.01)), color-stop(100%,rgba(255,255,255,0))); /* Chrome,Safari4+ */
@@ -112,9 +112,10 @@ ul#categories li.selected {
 }
 #songsContainer li  {
     display: inline-block;
-    padding: 2px;
+    padding: 0 2px 0 2px;
     position: relative;
     width: 130px;
+    height: 130px;
 }
 
 #songsContainer li:hover {
@@ -143,28 +144,30 @@ ul#categories li.selected {
 
 #songsContainer .metaContainer {
     position: absolute;
-    bottom: 7px;
+    bottom: 0;
     z-index: 0;
     background-color: #555;
     height: 24px;
     width: 130px;
     opacity: 0.8;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
 }
 #songsContainer li .artist {
     position: absolute;
-    bottom: 20px;
+    bottom: 13px;
     left: 5px;
     z-index: 1;
     /* color: #b3b3b3; */
     color: #ccc;
     font-size: 10px;
-    width: 130px;
+    width: 125px;
     height: 11px;
 }
 #songsContainer li .title {
     position: absolute;
     z-index: 1;
-    bottom: 8px;
+    bottom: 1px;
     left: 5px;
     color: #fff;
     font-size: 11px;
@@ -176,17 +179,6 @@ ul#categories li.selected {
     font-family: Interstate, "Lucida Grande", Helvetica, Arial, sans-serif;
     white-space: nowrap;
     overflow: hidden;
-}
-
-#songsContainer li .hider {
-    position: absolute;
-    xbackground: transparent url('../images/hider-fade.png') no-repeat;
-    width: 32px;
-    height: 23px;
-    position: absolute;
-    bottom: 0px;
-    right: 0px;
-    z-index: 2;
 }
 
 /*#songsContainer li.selected .audioBtn {*/
@@ -308,4 +300,13 @@ iframe {
     border: none;
     position: relative;
     left: 2px;
+}
+#scrollUp {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    position: absolute;
+    left: -10px;
+    bottom: 6px;
+    visibility: hidden;
 }

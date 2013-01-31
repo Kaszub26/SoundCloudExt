@@ -23,6 +23,8 @@ var Discover = {
 
     $playerContainer : null,
     $songsContainer : null,
+    $songSoften: null,
+    $scrollUp : null,
     $categorySelection : null,
     $chosenSelect : null,
     $loaderSelect: null,
@@ -65,7 +67,7 @@ var Discover = {
             Discover.$iFrame.show();
             Discover.$songsContainer.css('height', '270');
             Discover.$loaderSelect.css('top' , '100px');
-            $('#soften').css('top','165px');
+            Discover.$songSoften.css('top','165px');
         }
     },
 
@@ -111,11 +113,11 @@ var Discover = {
 
     showResults : function(data) {
 
-        //console.log(data);
-        var response = JSON.parse(data.target.response);
 
+        var response = JSON.parse(data.target.response);
+        console.log(response);
         //fill with selected content
-        var trackTemplate = '<li data-id="{0}"><img src="{1}" class="art"/><div class="audioBtn"></div><div class="artist">{2}</div><div class="title">{3}</div><div class="hider"></div><div class="metaContainer"></div></li>';
+        var trackTemplate = '<li data-id="{0}"><img src="{1}" class="art"/><div class="audioBtn"></div><div class="artist">{2}</div><div class="title">{3}</div><div class="metaContainer"></div></li>';
         var trackList = '';
 
         //console.log(response);
@@ -128,9 +130,9 @@ var Discover = {
 
         //removes image loading flicker - images don't load fast enough
         window.setTimeout(function() {
-            Discover.$songsContainer.css('visibility', '');
+            Discover.$songsContainer.css('visibility', 'visible');
             Discover.$loaderSelect.hide();
-        }, 150);
+        }, 350);
 
         //Determines which song is currently selected
         var $list = Discover.$songsContainer.find('li');
@@ -145,6 +147,36 @@ var Discover = {
                 var songId = $(this).attr('data-id');
                 Discover.playSong(songId);
             }
+
+            //jQuery scrollTo plugin, smoothly slides up to selected album art in list
+            Discover.$songsContainer.scrollTo($(this), 600);
+        });
+
+        var $children = Discover.$songsContainer.children();
+        var rows = Math.ceil(($children.length) / 3);
+        var heightOfSongs = $children.height() * (rows - 3);
+
+
+        //except we need to ignore the last row that will be at the bottom
+
+        Discover.$songsContainer.scroll(function() {
+            if ($(this).scrollTop() >= 5) {
+                Discover.$songSoften.css('visibility','visible');
+            }
+            else {
+                Discover.$songSoften.css('visibility','hidden');
+            }
+            console.log(Discover.$songsContainer.scrollTop(), heightOfSongs);
+            if (Discover.$songsContainer.scrollTop() >= heightOfSongs) {
+                Discover.scrollUp.css('visibility','visible').fadeIn('medium');
+            }
+            else {
+                Discover.scrollUp.fadeOut('fast');
+            }
+        });
+
+        Discover.scrollUp.click(function() {
+            Discover.$songsContainer.animate({ scrollTop : 0});
         });
     },
 
@@ -166,15 +198,6 @@ var Discover = {
             console.log(requestUrl);
             Discover.invokeSoundCloud(requestUrl, Discover.showResults);
         });
-
-        Discover.$songsContainer.scroll(function() {
-            if ($(this).scrollTop() >= 5) {
-                $('#soften').css('visibility','visible');
-            }
-            else {
-                $('#soften').css('visibility','hidden');
-            }
-        });
     },
 
     invokeSoundCloud : function(url, callback) {
@@ -195,6 +218,8 @@ jQuery(document).ready(function() {
     Discover.$iFrame = $('#iFrame');
     Discover.$songsContainer = $('#songsContainer');
     Discover.$loaderSelect = $('#loader');
+    Discover.$songSoften = $('#soften');
+    Discover.scrollUp = $('#scrollUp');
 
     Discover.invokeSoundCloud(Discover.categories, Discover.showData);
     Discover.$songsContainer.css('visibility', 'hidden');

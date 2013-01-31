@@ -5,6 +5,7 @@
     <script src="script/lib/api.js"></script>
     <script src="script/lib/jquery.min.js"></script>
     <script src="script/lib/chosen.jquery.min.js"></script>
+    <script src="script/lib/jquery.scrollTo-1.4.3.1-min.js"></script>
     <script src="discover.js"></script>
     <link rel="stylesheet" type="text/css" href="style/discover.css">
     <link rel="stylesheet" type="text/css" href="style/lib/chosen.css">
@@ -12,7 +13,7 @@
 <body>
 <div id="master-wrapper">
     <div id="header">
-        <a href="http://soundcloud.com/"><img src="images/orange_hori_logo.png"/></a>
+        <img src="images/orange_hori_logo.png"/>
     </div>
     <div id="wrapper">
         <div id="lhs">
@@ -24,17 +25,8 @@
             <div id="loader" style="display:none;"><img src="images/loader.gif"/></div>
             <div id="playerContainer"></div>
             <div id="soften"></div>
-            <ul id="songsContainer">
-                <li data-id="77010722">
-                    <img src="https://i1.sndcdn.com/artworks-000039481768-zrj58d-large.jpg?cc158ba" class="art">
-                    <div class="audioBtn"></div>
-                    <div class="metaContainer">
-                        <div class="artist">Interscope Records</div>
-                        <div class="title">will.i.am - Scream &amp; Shout Remix (ft. Britney Spears, Hit Boy, Waka Flocka Flame, Lil Wayne &amp; Diddy)</div>
-                    </div>
-                    <div class="hider"></div>
-                </li>
-            </ul>
+            <ul id="songsContainer"></ul>
+            <div id="scrollUp"><img src="images/scroll_up.png"/></div>
         </div>
     </div>
     <footer>
