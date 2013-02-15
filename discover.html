@@ -1,7 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+<!--
+chrome-extension://gjeabpacmlilkgbbanhjkhheoaegklnn/discover.html
+chrome-extension://gjeabpacmlilkgbbanhjkhheoaegklnn/background.html
+-->
 <head>
-    <title></title>
+    <title>SoundCloud Discovery</title>
     <script src="script/lib/api.js"></script>
     <script src="script/lib/jquery.min.js"></script>
     <script src="script/lib/chosen.jquery.min.js"></script>
@@ -17,9 +21,11 @@
     </div>
     <div id="wrapper">
         <div id="lhs">
-            <div id="recordShadow"></div>
-            <div id="record"></div>
-            <div id="recordOverlay"></div>
+            <div id="recordContainer">
+                <div id="recordShadow"></div>
+                <div id="record"></div>
+                <div id="recordOverlay"></div>
+            </div>
         </div>
         <div id="rhs">
             <div id="loader" style="display:none;"><img src="images/loader.gif"/></div>

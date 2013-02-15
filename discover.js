@@ -30,7 +30,7 @@ var Discover = {
     $loaderSelect: null,
     playerContainerSize: {
         'width' : 420,
-        'height': 150
+        'height': 135
     },
     params : {
         'auto_play'     : true,
@@ -49,10 +49,19 @@ var Discover = {
     defaultAlbumArt : 'images/default-artwork.png',
     defaultCategory : 'pop',
     currentCategory : 'pop',
-    categoryExpirationInMilliseconds : 60000, //3600000 , //one hour
+    current : {
+        category: {
+            name : ''
+        },
+        song: {
+            index : '',
+            id : ''
+        }
+    },
     categories : "https://api.sndcdn.com/explore/sounds/category?client_id=b45b1aa10f1ac2941910a7f0d10f8e28",
     songData : "https://api.sndcdn.com/tracks.json?ids={0}&client_id=b45b1aa10f1ac2941910a7f0d10f8e28", //append ids + clientId
-    linkFormat : 'https://w.soundcloud.com/player/?url=http://api.soundcloud.com/tracks/{0}&auto_play=true&auto_advance=true&buying=false&liking=false&download=false&sharing=false&show_artwork=true&show_comments=false&show_playcount=false&show_user=true&start_track=0&callback=true',
+    iFrameEndpoint : 'https://w.soundcloud.com/player/?url=http://api.soundcloud.com/tracks/{0}&auto_play=true&auto_advance=true&buying=false&liking=false&download=false&sharing=false&show_artwork=true&show_comments=false&show_playcount=false&show_user=true&start_track=0&callback=true',
+    next : 'http://api.soundcloud.com/tracks/{0}&auto_advance=true&buying=false&liking=false&download=false&sharing=false&show_artwork=true&show_comments=false&show_playcount=false&show_user=true&start_track=0&callback=true',
     tracks : {},
     doesExist : false,
     currentSong : '',
@@ -60,15 +69,73 @@ var Discover = {
 
     playSong : function(songId) {
 
-        if (Discover.currentSong !== songId) {
-            Discover.currentSong = songId;
-            Discover.$iFrame.attr('src', Discover.linkFormat.wiFormat(songId));
-            widget = SC.Widget(Discover.$iFrame[0]);
+        if (Discover.current.song.id !== songId) {
+            Discover.current.song.id = songId;
+            Discover.current.song.index = Discover.tracks[Discover.current.category.name].indexOf(songId);
+            console.log(Discover.current.song.id, Discover.current.song.index);
+
+            Discover.$iFrame.attr('src', Discover.iFrameEndpoint.wiFormat(songId));
+            widget = SC.Widget('iFrame');
+            widget.load(Discover.next.wiFormat(songId));
+            widget.unbind(SC.Widget.Events.READY);
+
+            widget.bind(SC.Widget.Events.READY, function() {
+                console.log('ready!');
+                widget.play();
+                widget.unbind(SC.Widget.Events.FINISH);
+                widget.bind(SC.Widget.Events.FINISH, function() {
+                    console.log('done!');
+                    Discover.playNextSong();
+                });
+            });
+
             Discover.$iFrame.show();
             Discover.$songsContainer.css('height', '270');
             Discover.$loaderSelect.css('top' , '100px');
-            Discover.$songSoften.css('top','165px');
+            var songsPositionTop = Discover.$songsContainer.position().top;
+            Discover.$songSoften.css('top', songsPositionTop + 'px');
         }
+        else if (Discover.current.song.id === songId) {
+            widget.play();
+        }
+    },
+
+    pauseSong : function() {
+        widget.pause();
+    },
+
+    playNextSong : function() {
+
+        console.log('song finished, play next');
+
+        var newSourceUrl,
+            nextSongId;
+
+        if (Discover.current.song.index < (Discover.tracks[Discover.current.category.name].length) - 1) {
+            nextSongId = Discover.tracks[Discover.current.category.name][++Discover.current.song.index];
+            //newSourceUrl = Discover.iFrameEndpoint.wiFormat(nextSongId);
+        }
+        else {
+            nextSongId = Discover.tracks[Discover.current.category.name][0];
+            //newSourceUrl = Discover.iFrameEndpoint.wiFormat(nextSongId);
+        }
+        newSourceUrl = Discover.next.wiFormat(nextSongId);
+        Discover.current.song.id = nextSongId;
+        Discover.current.song.index = Discover.tracks[Discover.current.category.name].indexOf(nextSongId);
+        console.log(Discover.current.song.id, Discover.current.song.index);
+        console.log(newSourceUrl);
+
+        //Discover.$iFrame.attr('src', newSourceUrl);
+        //Discover.widget = SC.Widget(Discover.$iFrame[0]);
+        widget.load(newSourceUrl);
+        widget.bind(SC.Widget.Events.READY, function() {
+            console.log('ready n!');
+            widget.play();
+
+            //Select the next active song and scroll to it
+            var $activeSong = Discover.$songsContainer.find('[data-id="' + nextSongId + '"]');
+            Discover.$songsContainer.scrollTo($activeSong, 600);
+        });
     },
 
     showData: function(data) {
@@ -99,31 +166,38 @@ var Discover = {
 
         //Initialize chosen.jquery to category selection list
         Discover.$chosenSelect = Discover.$categorySelection.chosen();
+        Discover.current.category.name = Discover.defaultCategory;
 
-
-        //TODO check if it exists in local storage
         var newSelection =  Discover.$chosenSelect.val();
         var requestUrl = Discover.songData.wiFormat(Discover.tracks[newSelection].join(','));
-        Discover.invokeSoundCloud(requestUrl, Discover.showResults);
+        Discover.makeEndpointRequest(requestUrl, Discover.cacheSongs);
 
         console.log(requestUrl);
         console.log(Discover.tracks);
         Discover.bindEvents();
     },
 
-    showResults : function(data) {
+    cacheSongs : function(data) {
 
 
         var response = JSON.parse(data.target.response);
         console.log(response);
-        //fill with selected content
+
+        //Fill HTML template with content
         var trackTemplate = '<li data-id="{0}"><img src="{1}" class="art"/><div class="audioBtn"></div><div class="artist">{2}</div><div class="title">{3}</div><div class="metaContainer"></div></li>';
         var trackList = '';
 
-        //console.log(response);
+        var currentCategoryArray = [];
         for (var i = 0, trackLength = response.length; i < trackLength; i++) {
+
+            //Order of songIds in Discover.cache.tracks is not the same as what we get back here
+            //Empty the previous list and push new values in order
+            currentCategoryArray.push('' + response[i].id); //make sure this is string
             trackList += trackTemplate.wiFormat(response[i].id, response[i].artwork_url || Discover.defaultAlbumArt, response[i].user.username, response[i].title);
         }
+
+        Discover.tracks[Discover.current.category.name] = currentCategoryArray;
+        console.log(Discover.tracks);
 
         //empty song collection everytime a new selection is chosen, and hide loader
         Discover.$songsContainer.html(trackList);
@@ -139,12 +213,16 @@ var Discover = {
         $list.click(function() {
             var isSelected = $(this).hasClass('selected');
             if (isSelected) {
+                Discover.pauseSong();
                 $list.find('*').parent().removeClass('selected');
             }
             else {
                 $list.find('*').parent().removeClass('selected');
                 $(this).addClass('selected');
-                var songId = $(this).attr('data-id');
+                var songId = $(this).attr('data-id'),
+                    artist = $(this).find('.artist').text(),
+                    songName = $(this).find('.title').text();
+                window.document.title = artist + ' - ' + songName;
                 Discover.playSong(songId);
             }
 
@@ -166,16 +244,16 @@ var Discover = {
             else {
                 Discover.$songSoften.css('visibility','hidden');
             }
-            console.log(Discover.$songsContainer.scrollTop(), heightOfSongs);
+            //console.log(Discover.$songsContainer.scrollTop(), heightOfSongs);
             if (Discover.$songsContainer.scrollTop() >= heightOfSongs) {
-                Discover.scrollUp.css('visibility','visible').fadeIn('medium');
+                Discover.$scrollUp.css('visibility','visible').fadeIn('medium');
             }
             else {
-                Discover.scrollUp.fadeOut('fast');
+                Discover.$scrollUp.fadeOut('fast');
             }
         });
 
-        Discover.scrollUp.click(function() {
+        Discover.$scrollUp.click(function() {
             Discover.$songsContainer.animate({ scrollTop : 0});
         });
     },
@@ -196,11 +274,11 @@ var Discover = {
             //Update boxes with new selected value
             var requestUrl = Discover.songData.wiFormat(Discover.tracks[newSelection].join(','));
             console.log(requestUrl);
-            Discover.invokeSoundCloud(requestUrl, Discover.showResults);
+            Discover.makeEndpointRequest(requestUrl, Discover.cacheSongs);
         });
     },
 
-    invokeSoundCloud : function(url, callback) {
+    makeEndpointRequest : function(url, callback) {
 
         var xhr = new XMLHttpRequest();
         xhr.open("GET", url, true);
@@ -219,9 +297,9 @@ jQuery(document).ready(function() {
     Discover.$songsContainer = $('#songsContainer');
     Discover.$loaderSelect = $('#loader');
     Discover.$songSoften = $('#soften');
-    Discover.scrollUp = $('#scrollUp');
+    Discover.$scrollUp = $('#scrollUp');
 
-    Discover.invokeSoundCloud(Discover.categories, Discover.showData);
+    Discover.makeEndpointRequest(Discover.categories, Discover.showData);
     Discover.$songsContainer.css('visibility', 'hidden');
     Discover.$loaderSelect.show();
 });

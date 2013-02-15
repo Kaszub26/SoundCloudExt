@@ -7,15 +7,15 @@ body {
     height: 500px;*/
     margin: 0;
     padding: 0;
-    height: 500px;
 }
 #master-wrapper {
+    position: relative;
     width: 640px;
+    height: 475px;
     clear: both;
 }
 #wrapper {
-    width: 640px;
-    position: relative;
+
 }
 #header {
     clear: both;
@@ -33,12 +33,16 @@ footer {
     /*height: 24px;*/
     /*width: 100%;*/
     /*background-color: #fff;*/
-    position: fixed;
+/*    position: fixed;
     bottom: 0;
     bottom: 0;
-    left: 0;
-    z-index: 5;
+    left: 0;*/
+    clear: both;
     width: 100%;
+    height: 23px;
+    position: relative;
+    z-index: 5;
+    top: -11px;
 /*    position: absolute;
     z-index: 100;
     bottom: 0;
@@ -116,10 +120,13 @@ ul#categories li.selected {
     position: relative;
     width: 130px;
     height: 130px;
+    opacity: 0.9;
+    -webkit-transition: opacity 0.3s;
 }
 
 #songsContainer li:hover {
     cursor: pointer;
+    opacity: 1.0;
 }
 
 #songsContainer li .art {
@@ -129,7 +136,7 @@ ul#categories li.selected {
 
 #songsContainer li .audioBtn {
     position: absolute;
-    top: 52px;
+    top: 50px;
     left: 52px;
     z-index: 2;
     width: 30px;
@@ -181,13 +188,13 @@ ul#categories li.selected {
     overflow: hidden;
 }
 
-/*#songsContainer li.selected .audioBtn {*/
-    /*background-position: 0px 0px;*/
-/*}*/
+#songsContainer li.selected .audioBtn {
+    background-position: 0px 0px;
+}
 
-/*#songsContainer li.selected:hover .audioBtn {*/
-    /*background-position: 0px -30px;*/
-/*}*/
+#songsContainer li.selected:hover .audioBtn {
+    background-position: 0 -30px;
+}
 
 #lhs {
     width: 200px;
@@ -198,6 +205,9 @@ ul#categories li.selected {
 /*
 TODO change image to no record, just clouds but semi transparent
 */
+#recordContainer {
+    position: relative;
+}
 #lhs #recordOverlay {
     background: transparent url('../images/recordOverlay2.png') no-repeat;
     position: absolute;
@@ -205,8 +215,8 @@ TODO change image to no record, just clouds but semi transparent
     width: 380px;
     height: 380px;
 
-    top: 19px;
-    left: -170px;
+    top: 14px;
+    left: -184px;
 
     animations: spin1 10s infinite linear;
     -moz-animation: spin1 10s infinite linear;
@@ -220,7 +230,7 @@ TODO change image to no record, just clouds but semi transparent
     width: 380px;
     height: 380px;
 
-    top: 19px;
+    top: 14px;
     left: -180px;
 
     animations: spin1 10s infinite linear;
@@ -233,7 +243,7 @@ TODO change image to no record, just clouds but semi transparent
     z-index: 0;
     width: 398px;
     height: 398px;
-    top: 10px;
+    top: 5px;
     left: -185px;
 }
 
@@ -256,7 +266,7 @@ TODO change image to no record, just clouds but semi transparent
 
 #lhs #categorySelection_chzn {
     position: absolute;
-    top: 195px;
+    top: 224px;
     left: 27px;
     width: 200px;
 }
@@ -307,6 +317,9 @@ iframe {
     cursor: pointer;
     position: absolute;
     left: -10px;
-    bottom: 6px;
+    bottom: 10px;
     visibility: hidden;
+}
+#scrollUp:hover {
+    opacity: 0.8;
 }
