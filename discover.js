@@ -15,8 +15,6 @@ String.prototype.wiFormat = function () {
     });
 };
 
-//TODO
-//change to Discover widget namespace
 var widget;
 
 var Discover = {
@@ -106,32 +104,24 @@ var Discover = {
 
     playNextSong : function() {
 
-        console.log('song finished, play next');
+        console.log('song finished, playing next');
 
         var newSourceUrl,
             nextSongId;
 
         if (Discover.current.song.index < (Discover.tracks[Discover.current.category.name].length) - 1) {
             nextSongId = Discover.tracks[Discover.current.category.name][++Discover.current.song.index];
-            //newSourceUrl = Discover.iFrameEndpoint.wiFormat(nextSongId);
         }
         else {
             nextSongId = Discover.tracks[Discover.current.category.name][0];
-            //newSourceUrl = Discover.iFrameEndpoint.wiFormat(nextSongId);
         }
         newSourceUrl = Discover.next.wiFormat(nextSongId);
         Discover.current.song.id = nextSongId;
         Discover.current.song.index = Discover.tracks[Discover.current.category.name].indexOf(nextSongId);
-        console.log(Discover.current.song.id, Discover.current.song.index);
-        console.log(newSourceUrl);
 
-        //Discover.$iFrame.attr('src', newSourceUrl);
-        //Discover.widget = SC.Widget(Discover.$iFrame[0]);
         widget.load(newSourceUrl);
         widget.bind(SC.Widget.Events.READY, function() {
-            console.log('ready n!');
             widget.play();
-
             //Select the next active song and scroll to it
             var $activeSong = Discover.$songsContainer.find('[data-id="' + nextSongId + '"]');
             Discover.$songsContainer.scrollTo($activeSong, 600);
@@ -151,7 +141,7 @@ var Discover = {
 
         for (var i = 0, collectionLength = response.collection.length; i < collectionLength; i++) {
 
-            var name = response.collection[i].name.toLowerCase().replace(/ /g, '');     //Make items lower case and remove space TODO one regex
+            var name = response.collection[i].name.toLowerCase().replace(/ /g, '');     //Make items lower case and remove space
             var formatName = name.replace(/[&\+]/g, '');                                //Replace &, +, and other uncessary characters with ''
             Discover.tracks[formatName] = [];
 
@@ -181,7 +171,7 @@ var Discover = {
 
 
         var response = JSON.parse(data.target.response);
-        console.log(response);
+        //console.log(response);
 
         //Fill HTML template with content
         var trackTemplate = '<li data-id="{0}"><img src="{1}" class="art"/><div class="audioBtn"></div><div class="artist">{2}</div><div class="title">{3}</div><div class="metaContainer"></div></li>';
@@ -244,7 +234,6 @@ var Discover = {
             else {
                 Discover.$songSoften.css('visibility','hidden');
             }
-            //console.log(Discover.$songsContainer.scrollTop(), heightOfSongs);
             if (Discover.$songsContainer.scrollTop() >= heightOfSongs) {
                 Discover.$scrollUp.css('visibility','visible').fadeIn('medium');
             }
@@ -260,7 +249,6 @@ var Discover = {
 
     bindEvents : function() {
 
-        //This needs to used cached data
         //Listen for changes
         Discover.$chosenSelect.change(function() {
 
@@ -268,7 +256,7 @@ var Discover = {
             Discover.$loaderSelect.show();
 
             var newSelection =  Discover.$chosenSelect.val();
-            console.log('value changed to',  newSelection);
+            //console.log('value changed to',  newSelection);
             Discover.currentCategory = newSelection;
 
             //Update boxes with new selected value
@@ -288,7 +276,10 @@ var Discover = {
 };
 
 jQuery(document).ready(function() {
-    //LocalStorageHelper.clearStorage();
+/*    var size = [window.outerWidth ,window.outerHeight];
+    $(window).resize(function(){
+        window.resizeTo(size[0],size[1]);
+    });*/
     Discover.$playerContainer = $('#playerContainer');
     Discover.$playerContainer.append('<iframe id="iFrame" style="display: none; width:{0}px; height:{1}px;"></iframe>'
         .wiFormat(Discover.playerContainerSize.width, Discover.playerContainerSize.height)
@@ -303,36 +294,6 @@ jQuery(document).ready(function() {
     Discover.$songsContainer.css('visibility', 'hidden');
     Discover.$loaderSelect.show();
 });
-
-
-/*
-    soundManager.defaultOptions = {
-        autoLoad: false,        // enable automatic loading (otherwise .load() will call with .play())
-        autoPlay: false,        // enable playing of file ASAP (much faster if "stream" is true)
-        from: null,             // position to start playback within a sound (msec), see demo
-        loops: 1,               // number of times to play the sound. Related: looping (API demo)
-        multiShot: true,        // let sounds "restart" or "chorus" when played multiple times..
-        multiShotEvents: false, // allow events (onfinish()) to fire for each shot, if supported.
-        onid3: null,            // callback function for "ID3 data is added/available"
-        onload: null,           // callback function for "load finished"
-        onstop: null,           // callback for "user stop"
-        onfinish: null,         // callback function for "sound finished playing"
-        onpause: null,          // callback for "pause"
-        onplay: null,           // callback for "play" start
-        onresume: null,         // callback for "resume" (pause toggle)
-        position: null,         // offset (milliseconds) to seek to within downloaded sound.
-        pan: 0,                 // "pan" settings, left-to-right, -100 to 100
-        stream: true,           // allows playing before entire file has loaded (recommended)
-        to: null,               // position to end playback within a sound (msec), see demo
-        type: null,             // MIME-like hint for canPlay() tests, eg. 'audio/mp3'
-        usePolicyFile: false,   // enable crossdomain.xml request for remote domains (for ID3/waveform access)
-        volume: 100,            // self-explanatory. 0-100, the latter being the max.
-        whileloading: null,     // callback function for updating progress (X of Y bytes received)
-        whileplaying: null,     // callback during play (position update)
-        // see optional flash 9-specific options, too
-    }
-*/
-
 
 /* Good data structure for our content
 

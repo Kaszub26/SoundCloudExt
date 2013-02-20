@@ -8,6 +8,14 @@ body {
     margin: 0;
     padding: 0;
 }
+::selection {
+    background: #F68C1F;
+    opacity: 0.5;
+}
+::-moz-selection {
+    background: #F68C1F;
+    opacity: 0.5;
+}
 #master-wrapper {
     position: relative;
     width: 640px;
