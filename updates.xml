@@ -1,6 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <gupdate xmlns='http://www.google.com/update2/response' protocol='2.0'>
-    <app appid='ifblegfcgjbgoonfpkkgodmcbdagmjli'>
+    <app appid='kifjhaegcjfpinmljdeepbponjgbdpbg'>
         <updatecheck codebase='http://cap1dev.conduit-apps.com/Apps/petar/soundcloud/discoverycloud_v1.0.crx' version='1.0' />
+    </app>
+    <app appid='kifjhaegcjfpinmljdeepbponjgbdpbg'>
+        <updatecheck codebase='http://cap1dev.conduit-apps.com/Apps/petar/soundcloud/discoverycloud_v1.1.crx' version='1.1' />
+    </app>
+	<app appid='kifjhaegcjfpinmljdeepbponjgbdpbg'>
+        <updatecheck codebase='http://cap1dev.conduit-apps.com/Apps/petar/soundcloud/discoverycloud_v1.2.crx' version='1.2' />
     </app>
 </gupdate>
