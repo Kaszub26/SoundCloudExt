@@ -6,5 +6,6 @@ Chrome Extensions Labs
 
 ### Feature Request
 
-* don't stop on minimize - background task
-* "keep playing" mode - once a song finishes, move on to next
+* Load more songs from current category
+* push notifications
+* shuffle playlist
