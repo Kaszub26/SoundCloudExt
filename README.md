@@ -1,4 +1,4 @@
-## SoundCloudDiscovery
+## SoundCloud Discovery
 
 SoundCloud music discovery extension for Google Chrome
 
