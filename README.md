@@ -12,8 +12,7 @@ Enable debug mode in the Chrome Extensions and drag the `.crx` file anywhere in 
 * Load more songs from current category
 * push notifications
 * shuffle playlist
-* 
 
-### Author
+## Author
 
 [@pbojinov](http://twitter.com/pbojinov)
