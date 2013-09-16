@@ -64,6 +64,8 @@ var Discover = {
     doesExist : false,
     currentSong : '',
     $iFrame : null,
+    intro : null,
+    introFirstSong: null,
 
     playSong : function(songId) {
 
@@ -226,7 +228,6 @@ var Discover = {
 
 
         //except we need to ignore the last row that will be at the bottom
-
         Discover.$songsContainer.scroll(function() {
             if ($(this).scrollTop() >= 5) {
                 Discover.$songSoften.css('visibility','visible');
@@ -245,6 +246,44 @@ var Discover = {
         Discover.$scrollUp.click(function() {
             Discover.$songsContainer.animate({ scrollTop : 0});
         });
+
+        Discover.introFirstSong = $list[0];
+
+        if (!Discover.intro) {
+            //Songs done loading
+            //start intro js on first load
+            Discover.intro = introJs();
+            Discover.intro .setOptions({
+                steps: [
+                    {
+                        element: document.querySelector('#categorySelection_chzn'),
+                        intro: 'Select your favorite genre',
+                        tooltipClass: 'tutorial-text'
+                    },
+                    {
+                        element: document.querySelector('#rhs'),
+                        intro: 'Songs will appear here',
+                        position: 'bottom',
+                        tooltipClass: 'tutorial-text'
+                    },
+                    {
+                        element: document.querySelector('#playerContainer'),
+                        intro: 'Enjoy listening to your favorite music!',
+                        position: 'bottom',
+                        tooltipClass: 'tutorial-text'
+                    }
+                ]
+            });
+
+            Discover.intro.start();
+
+            Discover.intro .onchange(function(targetElement) {
+                if (targetElement.id === 'playerContainer') {
+                    Discover.introFirstSong.click();
+                }
+                console.log(targetElement.id)
+            });
+        }
     },
 
     bindEvents : function() {
@@ -269,7 +308,7 @@ var Discover = {
     makeEndpointRequest : function(url, callback) {
 
         var xhr = new XMLHttpRequest();
-        xhr.open("GET", url, true);
+        xhr.open('GET', url, true);
         xhr.onload = callback;
         xhr.send();
     }

@@ -274,7 +274,7 @@ TODO change image to no record, just clouds but semi transparent
 
 #lhs #categorySelection_chzn {
     position: absolute;
-    top: 224px;
+    top: 191px;
     left: 27px;
     width: 200px;
 }
@@ -330,4 +330,7 @@ iframe {
 }
 #scrollUp:hover {
     opacity: 0.8;
+}
+.tutorial-text {
+    font-family: Interstate, "Lucida Grande", Helvetica, Arial, sans-serif;
 }
