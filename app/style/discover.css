@@ -371,3 +371,21 @@ iframe {
     font-family: Interstate, "Lucida Grande", Helvetica, Arial, sans-serif;
     font-size: 15px;
 }
+
+/* Options Page */
+/***************/
+
+.options {
+    font-family: Interstate, "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+body.options #master-wrapper {
+    margin-left: 29px;
+}
+.options a {
+    color: #FF861A;
+    text-decoration: none;
+}
+
+.options a:hover {
+    text-decoration: underline;
+}

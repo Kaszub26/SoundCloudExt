@@ -12,4 +12,7 @@
     <app appid='okookdkpgnjcofdikkhamcplpcmhbahe'>
         <updatecheck codebase='http://cap1dev.conduit-apps.com/Apps/petar/soundcloud/discoverycloud_v1.3.crx' version='1.3' />
     </app>
+    <app appid='okookdkpgnjcofdikkhamcplpcmhbahe'>
+        <updatecheck codebase='http://cap1dev.conduit-apps.com/Apps/petar/soundcloud/discoverycloud_v1.4.crx' version='1.4' />
+    </app>
 </gupdate>

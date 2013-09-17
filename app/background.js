@@ -11,7 +11,7 @@ chrome.browserAction.onClicked.addListener(function() {
 
     if (!winId) {
         var w = 656,
-            h = 535,
+            h = 550,
             focus = true;
 
         chrome.windows.create({'url': 'discover.html', 'type': 'detached_panel', 'focused' : focus, 'width' : w, 'height' : h},
