@@ -5,7 +5,8 @@
         "https://api.sndcdn.com/",
         "http://api.sndcdn.com/",
         "http://connect.soundcloud.com/",
-        "http://*/"
+        "http://*/",
+        "storage"
     ],
     "background" : {
         "scripts" : ["background.js"]

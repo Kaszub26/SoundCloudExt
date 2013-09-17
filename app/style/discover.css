@@ -70,6 +70,29 @@ footer #footerContent {
     background-color: #ffffff;
 }
 
+footer #footerContent ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    font-family: Interstate, "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+footer #footerContent ul li {
+    display: inline;
+    cursor: pointer;
+}
+
+footer #footerContent ul li.intro {
+    font-size: 12px;
+    border: 1px solid #EDEDED;
+    border-radius: 5px;
+    background-color: #EDEDED;
+    padding: 3px;
+}
+
+footer #footerContent ul li.intro:hover {
+    background-color: #FF861A;
+}
+
 #soften {
     visibility: hidden;
     position: absolute;
@@ -333,4 +356,5 @@ iframe {
 }
 .tutorial-text {
     font-family: Interstate, "Lucida Grande", Helvetica, Arial, sans-serif;
+    font-size: 15px;
 }
