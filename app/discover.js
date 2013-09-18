@@ -355,6 +355,7 @@ jQuery(document).ready(function () {
     Discover.$loaderSelect.show();
 });
 
+
 /* Good data structure for our content
 
  { Categories : [song1, song2, ...], ... }
