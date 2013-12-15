@@ -16,3 +16,7 @@ Enable debug mode in the Chrome Extensions and drag the `.crx` file anywhere in 
 ## Author
 
 [@pbojinov](http://twitter.com/pbojinov)
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/pbojinov/soundcloudext/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
